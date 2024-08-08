@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">MindMapMemo</string>
+
+    <string name="add_folder_dialog_description">Insert Folder Name</string>
+    <string name="add_folder_dialog_error_empty">Please, Insert Folder Name</string>
+    <string name="add_folder_dialog_error_duplicate">Folder Name is duplicated</string>
+
+    <string name="add_node_dialog_with_folder_description">Select folder</string>
+
+    <string name="add_node_dialog_description">Insert Node Link</string>
+    <string name="add_node_dialog_error_empty">Please, Insert Node Link</string>
+    <string name="add_node_dialog_error_duplicate">Folder Name is duplicated</string>
+</resources>
