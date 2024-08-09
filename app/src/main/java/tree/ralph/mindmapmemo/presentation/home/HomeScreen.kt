@@ -170,5 +170,9 @@ fun AddNodeDialog(
             }
         },
     )
+}
+
+@Composable
+fun SharedLinkDialog() {
 
 }
