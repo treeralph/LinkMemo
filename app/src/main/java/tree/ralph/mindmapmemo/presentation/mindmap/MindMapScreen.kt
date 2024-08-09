@@ -185,7 +185,7 @@ fun AddNodeDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(imageVector = Icons.Filled.AddBox, contentDescription = "") },
         title = {
-            Text(text = stringResource(id = R.string.add_folder_dialog_description))
+            Text(text = stringResource(id = R.string.add_node_dialog_description))
         },
         text = {
             OutlinedTextField(
