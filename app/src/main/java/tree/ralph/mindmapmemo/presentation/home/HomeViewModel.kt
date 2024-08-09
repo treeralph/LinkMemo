@@ -9,8 +9,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import tree.ralph.mindmapmemo.data.local.model.Folder
+import tree.ralph.mindmapmemo.data.repository.LinkBumperRepository
 import tree.ralph.mindmapmemo.data.repository.MindMapRepository
 import javax.inject.Inject
 
@@ -27,7 +29,8 @@ data class AddNodeDialogUiState(
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val mindMapRepository: MindMapRepository
+    private val mindMapRepository: MindMapRepository,
+    private val linkBumperRepository: LinkBumperRepository
 ): ViewModel() {
 
     private val _folders = MutableStateFlow<List<Folder>>(listOf())
@@ -39,6 +42,9 @@ class HomeViewModel @Inject constructor(
     private val _addFolderDialogUiState = mutableStateOf(AddFolderDialogUiState())
     val addFolderDialogUiState: State<AddFolderDialogUiState> = _addFolderDialogUiState
 
+    private val _sharedLinks = MutableStateFlow<List<String>>(listOf())
+    val sharedLinks = _sharedLinks.asStateFlow()
+
     private val _isAddNodeDialogState = mutableStateOf(false)
     val isAddNodeDialogState: State<Boolean> = _isAddNodeDialogState
 
@@ -47,8 +53,16 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            mindMapRepository.getAllFolders().collect {
-                _folders.emit(it)
+            launch {
+                mindMapRepository.getAllFolders().collect {
+                    _folders.emit(it)
+                }
+            }
+
+            launch {
+                linkBumperRepository.getLinkBumper().collectLatest {
+                    _sharedLinks.emit(it.linkList)
+                }
             }
         }
     }
@@ -107,12 +121,4 @@ class HomeViewModel @Inject constructor(
     fun onDialogUiStateChanged(new: String) {
         _addFolderDialogUiState.value = _addFolderDialogUiState.value.copy(content = new)
     }
-
-    fun observeIntentLink(link: String?) {
-        link?.let {
-            _addNodeDialogUiState.value = _addNodeDialogUiState.value.copy(link = it)
-            _isAddNodeDialogState.value = true
-        }
-    }
 }
-

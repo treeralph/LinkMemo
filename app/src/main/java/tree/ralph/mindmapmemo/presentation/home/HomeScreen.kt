@@ -44,8 +44,6 @@ fun HomeScreen(
 ) {
     val folders by viewModel.folders.collectAsState()
 
-    viewModel.observeIntentLink((LocalContext.current as MainActivity).getSharedLink())
-
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = { viewModel.openDialog() }) {
