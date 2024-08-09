@@ -69,6 +69,9 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.datastore)
+    implementation(libs.gson)
+
     implementation(libs.material.icon)
 
     implementation(libs.navigation.compose)
