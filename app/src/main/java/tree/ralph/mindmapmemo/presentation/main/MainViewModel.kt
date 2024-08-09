@@ -1,4 +1,4 @@
-package tree.ralph.mindmapmemo.presentation
+package tree.ralph.mindmapmemo.presentation.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

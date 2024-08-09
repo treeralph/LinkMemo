@@ -1,4 +1,4 @@
-package tree.ralph.mindmapmemo.presentation
+package tree.ralph.mindmapmemo.presentation.main
 
 import android.content.Intent
 import android.os.Bundle
