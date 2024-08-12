@@ -69,6 +69,8 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.lifecycle.viewmodel)
+
     implementation(libs.androidx.datastore)
     implementation(libs.gson)
 
