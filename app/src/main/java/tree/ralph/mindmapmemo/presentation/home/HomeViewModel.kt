@@ -1,5 +1,6 @@
 package tree.ralph.mindmapmemo.presentation.home
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import tree.ralph.mindmapmemo.data.local.model.Folder
+import tree.ralph.mindmapmemo.data.local.model.LinkBumper
 import tree.ralph.mindmapmemo.data.repository.LinkBumperRepository
 import tree.ralph.mindmapmemo.data.repository.MindMapRepository
 import javax.inject.Inject
@@ -32,6 +34,13 @@ class HomeViewModel @Inject constructor(
     private val mindMapRepository: MindMapRepository,
     private val linkBumperRepository: LinkBumperRepository
 ): ViewModel() {
+
+    private val _test = MutableStateFlow("")
+    val test = _test.asStateFlow()
+
+    fun onTestChanged(change: String) {
+        _test.value = change
+    }
 
     private val _folders = MutableStateFlow<List<Folder>>(listOf())
     val folders = _folders.asStateFlow()
@@ -120,5 +129,22 @@ class HomeViewModel @Inject constructor(
 
     fun onDialogUiStateChanged(new: String) {
         _addFolderDialogUiState.value = _addFolderDialogUiState.value.copy(content = new)
+    }
+
+    fun addLink(link: String) {
+        val temp = _sharedLinks.value.toMutableList()
+        Log.e("URGENT_TAG", "addLink: $temp", )
+        if(!temp.contains(link)) {
+            temp.add(link)
+            updateBumperLink(temp)
+        }
+    }
+
+    private fun updateBumperLink(linkList: List<String>) {
+        viewModelScope.launch {
+            linkBumperRepository.updateLinkBumper(
+                LinkBumper(linkList)
+            )
+        }
     }
 }
