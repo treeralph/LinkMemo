@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class EdgeEntity(
     @PrimaryKey(autoGenerate = true)
-    var id: Long = -1,
+    var id: Long = 0,
     @ColumnInfo(defaultValue = "-1")
     var node1: Long = 0,
     @ColumnInfo(defaultValue = "-1")

@@ -1,6 +1,7 @@
 package tree.ralph.mindmapmemo.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -22,15 +23,22 @@ class LinkBumperRepositoryImpl @Inject constructor(
 
     override fun getLinkBumper(): Flow<LinkBumper> = context.dataStore.data
         .catch {
+            Log.e("URGENT_TAG", "updateLinkBumper: getLinkBumper throw exception!")
             LinkBumper(listOf())
         }.map { preferences ->
             val temp = preferences[key] ?: ""
-            if(temp.isEmpty()) { LinkBumper(listOf()) }
-            else { gson.fromJson(temp, LinkBumper::class.java) }
+            if(temp.isEmpty()) {
+                Log.e("URGENT_TAG", "updateLinkBumper: temp is empty!")
+                LinkBumper(listOf())
+            } else {
+                Log.e("URGENT_TAG", "updateLinkBumper: $temp")
+                gson.fromJson(temp, LinkBumper::class.java)
+            }
         }
 
     override suspend fun updateLinkBumper(linkBumper: LinkBumper) {
         context.dataStore.edit {
+            Log.e("URGENT_TAG", "updateLinkBumper: $linkBumper", )
             it[key] = gson.toJson(linkBumper)
         }
     }

@@ -16,9 +16,10 @@
         android:theme="@style/Theme.MindMapMemo"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.MainActivity"
+            android:name=".presentation.main.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:launchMode="singleInstance"
             android:theme="@style/Theme.MindMapMemo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

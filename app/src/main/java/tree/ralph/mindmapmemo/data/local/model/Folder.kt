@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class Folder(
     @PrimaryKey(autoGenerate = true)
-    var id: Long = -1,
+    var id: Long = 0,
     @ColumnInfo(defaultValue = "")
     var folderName: String = "",
     @ColumnInfo(defaultValue = "")
