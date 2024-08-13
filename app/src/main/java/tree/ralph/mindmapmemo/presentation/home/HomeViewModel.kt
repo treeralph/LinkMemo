@@ -187,6 +187,7 @@ class HomeViewModel @Inject constructor(
             val temp = _sharedLinks.value.toMutableList()
             temp.remove(dataEntity)
             _sharedLinks.emit(temp)
+            updateBumperLink(temp)
         }
     }
 }
