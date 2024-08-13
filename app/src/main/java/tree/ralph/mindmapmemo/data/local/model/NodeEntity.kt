@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class NodeEntity(
     @PrimaryKey(autoGenerate = true)
-    var id: Long = -1,
+    var id: Long = 0,
     @ColumnInfo(defaultValue = "0.0")
     var dx: Double = 0.0,
     @ColumnInfo(defaultValue = "0.0")

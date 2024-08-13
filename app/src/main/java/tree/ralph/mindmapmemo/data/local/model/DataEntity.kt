@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class DataEntity(
     @PrimaryKey(autoGenerate = true)
-    var id: Long = -1,
+    var id: Long = 0,
     @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
     var createdTime: String = "",
     @ColumnInfo(defaultValue = "")
