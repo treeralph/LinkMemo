@@ -10,4 +10,6 @@
     <string name="add_node_dialog_description">Insert Node Link</string>
     <string name="add_node_dialog_error_empty">Please, Insert Node Link</string>
     <string name="add_node_dialog_error_duplicate">Folder Name is duplicated</string>
+
+    <string name="there_is_no_shared_link_description">There is no shared Link.</string>
 </resources>
