@@ -72,6 +72,20 @@ class MindMapRepositoryImpl @Inject constructor(
         return nodeEntityId
     }
 
+    override suspend fun insertNode(
+        nodeEntity: NodeEntity,
+        dataEntity: DataEntity,
+        folderId: Long,
+    ): Long {
+        var nodeEntityId = -1L
+        db.runInTransaction {
+            nodeEntityId = nodeEntityDao.insertNodeEntity(
+                nodeEntity.copy(folder = folderId)
+            )
+            dataEntityDao.insertDataEntity(dataEntity.copy(nodeEntityId = nodeEntityId))
+        }
+        return nodeEntityId
+    }
 
     override fun getAllFolders() = folderDao.getAllFolders()
     override suspend fun insertFolder(

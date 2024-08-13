@@ -20,6 +20,7 @@ interface MindMapRepository {
     suspend fun getEdgeById(id: Long): EdgeEntity
 
     suspend fun insertNode(nodeEntity: NodeEntity, dataEntity: DataEntity): Long
+    suspend fun insertNode(nodeEntity: NodeEntity, dataEntity: DataEntity, folderId: Long): Long
 
     fun getAllFolders(): Flow<List<Folder>>
     suspend fun insertFolder(folderName: String, folderInfo: String): Long
