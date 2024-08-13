@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,6 +38,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -250,53 +252,70 @@ fun LinkPreviewDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         Card {
-            Column {
-                VerticalPager(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp),
-                    state = verticalPagerState,
-                    pageSpacing = 12.dp,
-                    contentPadding = PaddingValues(start = 0.dp, end = 0.dp, top = 0.dp, bottom = 24.dp)
-                ) {
-                    Column {
-                        AsyncImage(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp),
-                            model = preview[it].imgUri,
-                            contentDescription = "",
-                            contentScale = ContentScale.Crop
+            if(preview.size != 0) {
+                Column {
+                    VerticalPager(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp),
+                        state = verticalPagerState,
+                        pageSpacing = 12.dp,
+                        contentPadding = PaddingValues(
+                            start = 0.dp,
+                            end = 0.dp,
+                            top = 0.dp,
+                            bottom = 24.dp
                         )
-                        Text(
-                            modifier = Modifier.padding(12.dp),
-                            text = preview[it].content,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                    ) {
+                        Column {
+                            AsyncImage(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                model = preview[it].imgUri,
+                                contentDescription = "",
+                                contentScale = ContentScale.Crop
+                            )
+                            Text(
+                                modifier = Modifier.padding(12.dp),
+                                text = preview[it].content,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                    HorizontalPager(state = horizontalPagerState) {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                text = folders[it].folderName,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            onSendButtonClickListener(
+                                folders[horizontalPagerState.currentPage],
+                                preview[verticalPagerState.currentPage]
+                            )
+                        }
+                    ) {
+                        Text(text = "Send")
                     }
                 }
-                HorizontalPager(state = horizontalPagerState) {
-                    Card (modifier = Modifier.fillMaxWidth()){
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            text = folders[it].folderName,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        onSendButtonClickListener(
-                            folders[horizontalPagerState.currentPage],
-                            preview[verticalPagerState.currentPage]
-                        )
-                    }
+            } else {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
                 ) {
-                    Text(text = "Send")
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = stringResource(id = R.string.there_is_no_shared_link_description)
+                    )
                 }
             }
         }
