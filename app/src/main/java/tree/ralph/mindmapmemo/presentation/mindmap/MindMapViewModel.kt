@@ -13,7 +13,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -28,18 +30,19 @@ import tree.ralph.mindmapmemo.data.repository.OpenProtocolRepository
 import javax.inject.Inject
 import kotlin.math.min
 import kotlin.random.Random
+import kotlin.system.measureTimeMillis
 
 data class DialogUiState(
     val content: String = "",
     val isError: Boolean = false,
-    val errorMessage: String = ""
+    val errorMessage: String = "",
 )
 
 @HiltViewModel
 class MindMapViewModel @Inject constructor(
     private val mindMapRepository: MindMapRepository,
-    private val openProtocolRepository: OpenProtocolRepository
-): ViewModel() {
+    private val openProtocolRepository: OpenProtocolRepository,
+) : ViewModel() {
 
     private val nodeEntities = ArrayList<NodeEntity>()
     private val edgeEntities = ArrayList<EdgeEntity>()
@@ -59,8 +62,8 @@ class MindMapViewModel @Inject constructor(
     val edgeEntityStates: List<MutableState<EdgeEntity>> = _edgeEntityStates
     val notificationNodeEntityState = _notificationNodeEntityState
 
-    private val _opState = mutableStateOf(true)
-    val opState: State<Boolean> = _opState
+    private val _opState = MutableStateFlow(true)
+    val opState = _opState.asStateFlow()
 
     val currentFolder = mindMapRepository.currentFolder
 
@@ -85,15 +88,38 @@ class MindMapViewModel @Inject constructor(
     /** end Node Detail Dialog */
 
 
-
     init {
 
+        Log.e("URGENT_TAG", "MindMapViewModel: init")
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val nodeJob = launch {
+                val nodeList = mindMapRepository.getAllNodesByFolder()
+                nodeList.forEach { node ->
+                    val nodeEntity = node.nodeEntity
+                    nodeId2Index[nodeEntity.id] = nodeEntities.size
+                    nodeEntities.add(nodeEntity)
+
+                    _nodeEntityStates.add(mutableStateOf(nodeEntity))
+                    _dataEntityStates.add(mutableStateOf(node.dataEntity))
+                }
+            }
+            val edgeJob = launch {
+                val edgeList = mindMapRepository.getAllEdgesByFolder()
+                edgeList.forEach { edge ->
+                    edgeEntities.add(edge)
+                }
+            }
+            nodeJob.join()
+            edgeJob.join()
+            draw()
+        }
     }
 
-    fun draw() {
+    private fun draw() {
         _opState.value = true
         viewModelScope.launch(Dispatchers.IO) {
-            while(_opState.value) {
+            while (_opState.value) {
                 mutex.withLock {
                     operate(
                         nodes = nodeEntities,
@@ -109,9 +135,6 @@ class MindMapViewModel @Inject constructor(
             }
         }
     }
-
-
-
 
 
     /**
@@ -136,14 +159,21 @@ class MindMapViewModel @Inject constructor(
         nodeEntities[index] = temp
         _nodeEntityStates[index].value = temp
 
-        findCollisionNodeEntity(temp.id, temp.x, temp.y)?.let {
-            _notificationNodeEntityState.value = it
-        }
+        findCollisionNode(index, temp.x, temp.y)
     }
 
-    private fun findCollisionNodeEntity(selfId: Long, selfX: Double, selfY: Double): NodeEntity? {
-        return nodeEntities.firstOrNull {
-            it.id != selfId && isCollision(it.x, it.y, selfX, selfY)
+    private fun findCollisionNode(selfIndex: Int, selfX: Double, selfY: Double) {
+        var targetId = -1
+        nodeEntities.forEachIndexed { index, nodeEntity ->
+            if(isCollision(nodeEntity.x, nodeEntity.y, selfX, selfY)) {
+                if(index != selfIndex) {
+                    targetId = index
+                }
+            }
+        }
+        _notificationNodeEntityState.value = null
+        if(targetId != -1) {
+            _notificationNodeEntityState.value = nodeEntities[targetId].copy()
         }
     }
 
@@ -244,6 +274,6 @@ class MindMapViewModel @Inject constructor(
     private external suspend fun operate(
         nodes: ArrayList<NodeEntity>,
         edges: ArrayList<EdgeEntity>,
-        nodeId2Index: HashMap<Long, Int>
+        nodeId2Index: HashMap<Long, Int>,
     )
 }

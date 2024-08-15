@@ -18,6 +18,7 @@ interface MindMapRepository {
     suspend fun isEdgeEntity(node1: Long, node2: Long): List<EdgeEntity>
     suspend fun insertEdgeEntity(node1: Long, node2: Long): Long
     suspend fun getEdgeById(id: Long): EdgeEntity
+    suspend fun getAllEdgesByFolder(): List<EdgeEntity>
 
     suspend fun insertNode(nodeEntity: NodeEntity, dataEntity: DataEntity): Long
     suspend fun insertNode(nodeEntity: NodeEntity, dataEntity: DataEntity, folderId: Long): Long

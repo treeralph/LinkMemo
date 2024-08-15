@@ -22,7 +22,7 @@ Java_tree_ralph_mindmapmemo_presentation_mindmap_MindMapViewModel_operate(
         jobject edges,
         jobject nodeId2Index
 ) {
-    jclass com_example_composableoptimizing_Node = static_cast<jclass>(env ->NewGlobalRef(env ->FindClass("tree/ralph/mindmapmemo/data/model/NodeEntity")));
+    jclass com_example_composableoptimizing_Node = static_cast<jclass>(env ->NewGlobalRef(env ->FindClass("tree/ralph/mindmapmemo/data/local/model/NodeEntity")));
     jmethodID node_set_dx = env ->GetMethodID(com_example_composableoptimizing_Node, "setDx", "(D)V");
     jmethodID node_set_dy = env ->GetMethodID(com_example_composableoptimizing_Node, "setDy", "(D)V");
     jmethodID node_set_x = env ->GetMethodID(com_example_composableoptimizing_Node, "setX", "(D)V");
@@ -34,7 +34,7 @@ Java_tree_ralph_mindmapmemo_presentation_mindmap_MindMapViewModel_operate(
     jfieldID node_y_field = env ->GetFieldID(com_example_composableoptimizing_Node, "y", "D");
     jfieldID node_size_field = env ->GetFieldID(com_example_composableoptimizing_Node, "size", "D");
 
-    jclass com_example_composableoptimizing_Edge = static_cast<jclass>(env ->NewGlobalRef(env ->FindClass("tree/ralph/mindmapmemo/data/model/EdgeEntity")));
+    jclass com_example_composableoptimizing_Edge = static_cast<jclass>(env ->NewGlobalRef(env ->FindClass("tree/ralph/mindmapmemo/data/local/model/EdgeEntity")));
     jfieldID edge_node1_field = env ->GetFieldID(com_example_composableoptimizing_Edge, "node1", "J");
     jfieldID edge_node2_field = env ->GetFieldID(com_example_composableoptimizing_Edge, "node2", "J");
 
