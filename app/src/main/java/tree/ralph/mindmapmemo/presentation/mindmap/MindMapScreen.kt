@@ -82,7 +82,7 @@ fun MindMapScreen(
                     dataEntity = { viewModel.getDataEntityState(index).value },
                     onDragStart = { viewModel.onNodeDragStart(nodeEntityState.value) },
                     onNodeMoved = { viewModel.onNodeMoved(index, it) },
-                    onDragEnd = { viewModel.onNodeDragEnd() },
+                    onDragEnd = { viewModel.onNodeDragEnd(index) },
                     onClickListener = {
 
                     }
@@ -96,7 +96,7 @@ fun MindMapScreen(
             )
         }
 
-        if(viewModel.isAddNodeDialog.value) {
+        if (viewModel.isAddNodeDialog.value) {
             AddNodeDialog(
                 dialogUiState = viewModel.addNodeDialogUiState.value,
                 onTitleChanged = { viewModel.onTitleChanged(it) },
@@ -179,7 +179,7 @@ fun AddNodeDialog(
     dialogUiState: DialogUiState,
     onTitleChanged: (String) -> Unit,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -193,7 +193,7 @@ fun AddNodeDialog(
                 onValueChange = onTitleChanged,
                 isError = dialogUiState.isError,
                 supportingText = {
-                    if(dialogUiState.isError) {
+                    if (dialogUiState.isError) {
                         Text(text = dialogUiState.errorMessage)
                     }
                 }

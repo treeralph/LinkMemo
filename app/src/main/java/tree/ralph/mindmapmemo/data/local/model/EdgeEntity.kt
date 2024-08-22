@@ -1,5 +1,7 @@
 package tree.ralph.mindmapmemo.data.local.model
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -7,15 +9,15 @@ import androidx.room.PrimaryKey
 @Entity
 data class EdgeEntity(
     @PrimaryKey(autoGenerate = true)
-    var id: Long = 0,
+    val id: Long = 0,
     @ColumnInfo(defaultValue = "-1")
-    var node1: Long = 0,
+    val node1: Long = 0,
     @ColumnInfo(defaultValue = "-1")
-    var node2: Long = 0,
+    val node2: Long = 0,
     @ColumnInfo(defaultValue = "1.0")
-    var weight: Double = 1.0,
+    val weight: Double = 1.0,
     @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
-    var createdTime: String = "",
+    val createdTime: String = "",
     @ColumnInfo(defaultValue = "-1")
-    var folder: Long = -1
+    val folder: Long = -1
 )

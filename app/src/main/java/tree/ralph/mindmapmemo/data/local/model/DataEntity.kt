@@ -7,21 +7,21 @@ import androidx.room.PrimaryKey
 @Entity
 data class DataEntity(
     @PrimaryKey(autoGenerate = true)
-    var id: Long = 0,
+    val id: Long = 0,
     @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
-    var createdTime: String = "",
+    val createdTime: String = "",
     @ColumnInfo(defaultValue = "")
-    var imgUri: String = "",
+    val imgUri: String = "",
     @ColumnInfo(defaultValue = "")
-    var linkUrl: String = "",
+    val linkUrl: String = "",
     @ColumnInfo(defaultValue = "")
-    var content: String = "",
+    val content: String = "",
     @ColumnInfo(defaultValue = "")
-    var description: String = "",
+    val description: String = "",
     @ColumnInfo(defaultValue = "")
-    var nodeInfo: String = "",
+    val nodeInfo: String = "",
     @ColumnInfo(defaultValue = "")
-    var nodeColor: String = "",
+    val nodeColor: String = "",
     @ColumnInfo(defaultValue = "-1")
-    var nodeEntityId: Long = -1
+    val nodeEntityId: Long = -1
 )
