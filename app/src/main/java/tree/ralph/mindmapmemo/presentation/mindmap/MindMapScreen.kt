@@ -1,12 +1,19 @@
 package tree.ralph.mindmapmemo.presentation.mindmap
 
 import android.content.res.Resources
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddBox
@@ -34,16 +41,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import tree.ralph.mindmapmemo.R
 import tree.ralph.mindmapmemo.data.local.model.DataEntity
 import tree.ralph.mindmapmemo.data.local.model.Folder
+import tree.ralph.mindmapmemo.data.local.model.NODE_RADIUS
+import kotlin.math.min
 
 @Composable
 fun MindMapScreen(
@@ -67,26 +80,100 @@ fun MindMapScreen(
         }
     ) {
         viewModel.edgeEntityStates.forEach { edgeEntityState ->
-            key(edgeEntityState.value.id) {
-                EdgeComposable(
-                    start = { viewModel.getNodeEntity(edgeEntityState.value.node1) },
-                    end = { viewModel.getNodeEntity(edgeEntityState.value.node2) }
-                )
+            key(edgeEntityState.id) {
+
+                /**
+                 * @Composable
+                 * fun EdgeComposable
+                 * */
+
+                val start = viewModel.getNodeEntity(edgeEntityState.node1)
+                val end = viewModel.getNodeEntity(edgeEntityState.node2)
+
+                Box(
+                    modifier = Modifier
+                        .offset {
+                            IntOffset(
+                                x = min(start.x, end.x).toInt(),
+                                y = min(start.y, end.y).toInt()
+                            )
+                        }
+                        .size(width = 1.dp, height = 1.dp)
+                ) {
+                    Spacer(
+                        modifier = Modifier
+                            .drawBehind {
+                                drawLine(
+                                    color = Color.Black,
+                                    start = Offset(
+                                        (start.x - min(start.x, end.x)).toFloat(),
+                                        (start.y - min(start.y, end.y)).toFloat()
+                                    ),
+                                    end = Offset(
+                                        (end.x - min(start.x, end.x)).toFloat(),
+                                        (end.y - min(start.y, end.y)).toFloat()
+                                    ),
+                                    alpha = STROKE_ALPHA,
+                                    strokeWidth = STROKE_WIDTH
+                                )
+                            }
+                            .fillMaxSize()
+                    )
+                }
+
+                /**
+                 * /EdgeComposable
+                 * */
             }
         }
 
         viewModel.nodeEntityStates.forEachIndexed { index, nodeEntityState ->
-            key(nodeEntityState.value.id) {
-                NodeComposable(
-                    nodeEntity = { nodeEntityState.value },
-                    dataEntity = { viewModel.getDataEntityState(index).value },
-                    onDragStart = { viewModel.onNodeDragStart(nodeEntityState.value) },
-                    onNodeMoved = { viewModel.onNodeMoved(index, it) },
-                    onDragEnd = { viewModel.onNodeDragEnd(index) },
-                    onClickListener = {
+            key(nodeEntityState.id) {
 
+                /**
+                 * @Composable
+                 * fun NodeComposable
+                 * */
+
+                Box(
+                    modifier = Modifier
+                        .offset {
+                            IntOffset(
+                                x = (nodeEntityState.x - NODE_RADIUS).toInt(),
+                                y = (nodeEntityState.y - NODE_RADIUS).toInt()
+                            )
+                        }
+                        .size(pixelToDp(px = NODE_RADIUS * 2))
+                        .clickable {  }
+                        .pointerInput(Unit) {
+                            detectDragGestures(
+                                onDragStart = { viewModel.onNodeDragStart(nodeEntityState) },
+                                onDragEnd = { viewModel.onNodeDragEnd(index) },
+                                onDragCancel = { viewModel.onNodeDragEnd(index) }
+                            ) { change, dragAmount ->
+                                change.consume()
+                                viewModel.onNodeMoved(index, dragAmount)
+                            }
+                        }
+                ) {
+                    Spacer(
+                        modifier = Modifier
+                            .offset { IntOffset((NODE_RADIUS / 2).toInt(), (NODE_RADIUS / 2).toInt()) }
+                            .size(pixelToDp(px = NODE_RADIUS))
+                            .clip(CircleShape)
+                            .background(color = MaterialTheme.colorScheme.onSecondary),
+                    )
+
+                    if(viewModel.getDataEntityState(index).imgUri.isNotEmpty()) {
+                        SubNodeComposableWithImage(dataEntity = viewModel.getDataEntityState(index))
+                    }else {
+                        SubNodeComposable(dataEntity = viewModel.getDataEntityState(index))
                     }
-                )
+                }
+
+                /**
+                 * /NodeComposable
+                 * */
             }
         }
 
@@ -131,9 +218,6 @@ fun MindMapScreenScaffold(
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
 
-    val width = Resources.getSystem().displayMetrics.widthPixels / 2f
-    val height = Resources.getSystem().displayMetrics.heightPixels / 2f
-
     Scaffold(
         topBar = topBar,
         bottomBar = bottomBar,
@@ -154,8 +238,8 @@ fun MindMapScreenScaffold(
                         if (zoom != 1f) {
                             scale *= zoom
                             offset += Offset(
-                                x = (1 - zoom) * (centroid.x - offset.x - width),
-                                y = (1 - zoom) * (centroid.y - offset.y - height)
+                                x = (1 - zoom) * (centroid.x - offset.x - screenWidth / 2),
+                                y = (1 - zoom) * (centroid.y - offset.y - screenHeight / 2)
                             )
                         } else offset += pan
                     }
