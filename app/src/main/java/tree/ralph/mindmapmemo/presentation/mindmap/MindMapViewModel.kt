@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
@@ -45,14 +46,14 @@ class MindMapViewModel @Inject constructor(
     private val edgeEntities = ArrayList<EdgeEntity>()
     private val nodeId2Index = HashMap<Long, Int>()
 
-    private val _nodeEntityStates = mutableListOf<MutableState<NodeEntity>>()
-    private val _dataEntityStates = mutableListOf<MutableState<DataEntity>>()
-    private val _edgeEntityStates = mutableListOf<MutableState<EdgeEntity>>()
+    private val _nodeEntityStates = mutableStateListOf<NodeEntity>()
+    private val _dataEntityStates = mutableStateListOf<DataEntity>()
+    private val _edgeEntityStates = mutableStateListOf<EdgeEntity>()
     private val _notificationNodeEntityState = mutableStateOf<NodeEntity?>(null)
 
-    val nodeEntityStates: List<State<NodeEntity>> = _nodeEntityStates
-    val dataEntityStates: List<State<DataEntity>> = _dataEntityStates
-    val edgeEntityStates: List<State<EdgeEntity>> = _edgeEntityStates
+    val nodeEntityStates: List<NodeEntity> = _nodeEntityStates
+    val dataEntityStates: List<DataEntity> = _dataEntityStates
+    val edgeEntityStates: List<EdgeEntity> = _edgeEntityStates
     val notificationNodeEntityState: State<NodeEntity?> = _notificationNodeEntityState
 
     private var drawJob: Job? = null
@@ -81,29 +82,35 @@ class MindMapViewModel @Inject constructor(
     /** end Node Detail Dialog */
 
     init {
-        Log.e("URGENT_TAG", "MindMapViewModel: init")
-
         viewModelScope.launch(Dispatchers.IO) {
-            val nodeJob = launch {
+            val tmp1 = launch {
                 val nodeList = mindMapRepository.getAllNodesByFolder()
                 nodeList.forEach { node ->
                     val nodeEntity = node.nodeEntity
+
                     nodeId2Index[nodeEntity.id] = nodeEntities.size
                     nodeEntities.add(nodeEntity)
 
-                    _nodeEntityStates.add(mutableStateOf(nodeEntity))
-                    _dataEntityStates.add(mutableStateOf(node.dataEntity))
+                    launch(Dispatchers.Main) {
+                        _nodeEntityStates.add(nodeEntity)
+                        _dataEntityStates.add(node.dataEntity)
+                    }
                 }
             }
-            val edgeJob = launch {
+
+            val tmp2 = launch {
                 val edgeList = mindMapRepository.getAllEdgesByFolder()
                 edgeList.forEach { edge ->
                     edgeEntities.add(edge)
-                    _edgeEntityStates.add(mutableStateOf(edge))
+
+                    launch(Dispatchers.Main) {
+                        _edgeEntityStates.add(edge)
+                    }
                 }
             }
-            nodeJob.join()
-            edgeJob.join()
+
+            tmp1.join()
+            tmp2.join()
             draw()
         }
     }
@@ -120,7 +127,7 @@ class MindMapViewModel @Inject constructor(
                 )
                 viewModelScope.launch(Dispatchers.Main) {
                     nodeEntities.forEachIndexed { index, nodeEntity ->
-                        _nodeEntityStates[index].value = nodeEntity.copy()
+                        _nodeEntityStates[index] = nodeEntity.copy()
                     }
                 }
 
@@ -137,10 +144,10 @@ class MindMapViewModel @Inject constructor(
     }
 
     fun onNodeMoved(index: Int, offset: Offset) {
-        val target = _nodeEntityStates[index].value
+        val target = _nodeEntityStates[index]
         val x = target.x + offset.x
         val y = target.y + offset.y
-        _nodeEntityStates[index].value = target.copy(x = x, y = y)
+        _nodeEntityStates[index] = target.copy(x = x, y = y)
         findCollisionNode(index, x, y)
     }
 
@@ -166,13 +173,13 @@ class MindMapViewModel @Inject constructor(
                     launch(Dispatchers.IO) {
                         addEdgeEntity(movedEntity.id, it.id) { edgeEntity ->
                             edgeEntities.add(edgeEntity)
-                            _edgeEntityStates.add(mutableStateOf(edgeEntity))
+                            _edgeEntityStates.add(edgeEntity)
                         }
                     }
 
                     onMovedNodeEntity = null
                     _notificationNodeEntityState.value = null
-                    nodeEntities[index] = _nodeEntityStates[index].value
+                    nodeEntities[index] = _nodeEntityStates[index]
 
                     // todo: 순서대로 잘 출력 되는지 확인 할 것
                     Log.e("URGENT_TAG", "onNodeDragEnd: 1")
@@ -229,8 +236,8 @@ class MindMapViewModel @Inject constructor(
 
                 val node = mindMapRepository.getNodeById(nodeId)
                 nodeEntities.add(node.nodeEntity)
-                _nodeEntityStates.add(mutableStateOf(node.nodeEntity))
-                _dataEntityStates.add(mutableStateOf(node.dataEntity))
+                _nodeEntityStates.add(node.nodeEntity)
+                _dataEntityStates.add(node.dataEntity)
                 nodeId2Index[nodeId] = nodeEntities.size - 1
             }
 
@@ -240,7 +247,7 @@ class MindMapViewModel @Inject constructor(
         }
     }
 
-    fun getNodeEntity(nodeId: Long) = _nodeEntityStates[nodeId2Index[nodeId]!!].value
+    fun getNodeEntity(nodeId: Long) = _nodeEntityStates[nodeId2Index[nodeId]!!]
 
     fun getDataEntityState(index: Int) = _dataEntityStates[index]
 
