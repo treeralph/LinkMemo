@@ -4,9 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import org.jsoup.Jsoup
-import tree.ralph.mindmapmemo.data.remote.model.OpenProtocolResponse
-import java.util.regex.Pattern
 import kotlin.math.abs
 
 @Composable
