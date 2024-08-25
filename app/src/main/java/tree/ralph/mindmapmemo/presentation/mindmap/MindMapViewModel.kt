@@ -1,7 +1,6 @@
 package tree.ralph.mindmapmemo.presentation.mindmap
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -11,15 +10,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.yield
 import tree.ralph.mindmapmemo.data.local.model.DataEntity
 import tree.ralph.mindmapmemo.data.local.model.EdgeEntity
@@ -28,7 +22,6 @@ import tree.ralph.mindmapmemo.data.repository.MindMapRepository
 import tree.ralph.mindmapmemo.data.repository.OpenProtocolRepository
 import javax.inject.Inject
 import kotlin.random.Random
-import kotlin.time.measureTime
 
 data class DialogUiState(
     val content: String = "",
@@ -125,7 +118,7 @@ class MindMapViewModel @Inject constructor(
                     edges = edgeEntities,
                     nodeId2Index = nodeId2Index
                 )
-                viewModelScope.launch(Dispatchers.Main) {
+                launch(Dispatchers.Main) {
                     nodeEntities.forEachIndexed { index, nodeEntity ->
                         _nodeEntityStates[index] = nodeEntity.copy()
                     }
@@ -168,6 +161,8 @@ class MindMapViewModel @Inject constructor(
 
     fun onNodeDragEnd(index: Int) {
         viewModelScope.launch {
+
+
             _notificationNodeEntityState.value?.let {
                 onMovedNodeEntity?.let { movedEntity ->
                     launch(Dispatchers.IO) {
@@ -176,17 +171,13 @@ class MindMapViewModel @Inject constructor(
                             _edgeEntityStates.add(edgeEntity)
                         }
                     }
-
                     onMovedNodeEntity = null
                     _notificationNodeEntityState.value = null
-                    nodeEntities[index] = _nodeEntityStates[index]
-
-                    // todo: 순서대로 잘 출력 되는지 확인 할 것
-                    Log.e("URGENT_TAG", "onNodeDragEnd: 1")
                 }
             }
 
-            Log.e("URGENT_TAG", "onNodeDragEnd: 2")
+            nodeEntities[index] = _nodeEntityStates[index]
+
             draw()
         }
     }
