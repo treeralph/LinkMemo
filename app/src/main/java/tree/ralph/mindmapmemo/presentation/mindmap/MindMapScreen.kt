@@ -1,6 +1,5 @@
 package tree.ralph.mindmapmemo.presentation.mindmap
 
-import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -17,8 +16,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddBox
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -53,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import tree.ralph.mindmapmemo.R
-import tree.ralph.mindmapmemo.data.local.model.DataEntity
 import tree.ralph.mindmapmemo.data.local.model.Folder
 import tree.ralph.mindmapmemo.data.local.model.NODE_RADIUS
 import kotlin.math.min
