@@ -22,6 +22,7 @@ import tree.ralph.mindmapmemo.data.repository.MindMapRepository
 import tree.ralph.mindmapmemo.data.repository.OpenProtocolRepository
 import javax.inject.Inject
 import kotlin.random.Random
+import kotlin.time.measureTime
 
 data class DialogUiState(
     val content: String = "",
@@ -74,6 +75,17 @@ class MindMapViewModel @Inject constructor(
 
     /** end Node Detail Dialog */
 
+    /**
+     * Delete Me
+     * */
+
+    var countA = 0
+    var countB = 0
+
+    /**
+     * Delete Me
+     * */
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             val tmp1 = launch {
@@ -109,21 +121,23 @@ class MindMapViewModel @Inject constructor(
     }
 
     private fun draw() {
-        drawJob = viewModelScope.launch(
-            Dispatchers.Default + drawCoroutineExceptionHandler
-        ) {
+        drawJob = viewModelScope.launch(Dispatchers.Default + drawCoroutineExceptionHandler) {
             while(true) {
+                countA++
                 operate(
                     nodes = nodeEntities,
                     edges = edgeEntities,
                     nodeId2Index = nodeId2Index
                 )
                 launch(Dispatchers.Main) {
+                    countB++
                     nodeEntities.forEachIndexed { index, nodeEntity ->
                         _nodeEntityStates[index] = nodeEntity.copy()
                     }
                 }
-
+                if(countA % 500 == 0) {
+                    Log.e("URGENT_TAG", "draw: countA: $countA, countB: $countB")
+                }
                 yield()
             }
         }
@@ -161,23 +175,21 @@ class MindMapViewModel @Inject constructor(
 
     fun onNodeDragEnd(index: Int) {
         viewModelScope.launch {
-
-
-            _notificationNodeEntityState.value?.let {
-                onMovedNodeEntity?.let { movedEntity ->
-                    launch(Dispatchers.IO) {
+            onMovedNodeEntity?.let { movedEntity ->
+                _nodeEntityStates[index] = onMovedNodeEntity!!.copy()
+                nodeEntities[index] = onMovedNodeEntity!!.copy()
+                _notificationNodeEntityState.value?.let {
+                    val tmp = launch(Dispatchers.IO) {
                         addEdgeEntity(movedEntity.id, it.id) { edgeEntity ->
                             edgeEntities.add(edgeEntity)
                             _edgeEntityStates.add(edgeEntity)
                         }
                     }
+                    tmp.join()
                     onMovedNodeEntity = null
                     _notificationNodeEntityState.value = null
                 }
             }
-
-            nodeEntities[index] = _nodeEntityStates[index]
-
             draw()
         }
     }
