@@ -56,6 +56,10 @@ class MindMapRepositoryImpl @Inject constructor(
         node2: Long,
     ) = edgeEntityDao.insertEdgeEntity(node1, node2, currentFolder.value!!.id)
 
+    override suspend fun getAllEdgesByFolder(): List<EdgeEntity> {
+        return edgeEntityDao.getEdgeEntitiesByFolder(currentFolder.value!!.id)
+    }
+
     override suspend fun getEdgeById(id: Long) = edgeEntityDao.getEdgeEntityById(id)
 
     override suspend fun insertNode(

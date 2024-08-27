@@ -160,7 +160,7 @@ fun EdgeComposable(
             modifier = Modifier
                 .drawBehind {
                     drawLine(
-                        color = Color.White,
+                        color = Color.Black,
                         start = Offset(
                             (start().x - min(start().x, end().x)).toFloat(),
                             (start().y - min(start().y, end().y)).toFloat()
