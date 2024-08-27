@@ -75,17 +75,6 @@ class MindMapViewModel @Inject constructor(
 
     /** end Node Detail Dialog */
 
-    /**
-     * Delete Me
-     * */
-
-    var countA = 0
-    var countB = 0
-
-    /**
-     * Delete Me
-     * */
-
     init {
         viewModelScope.launch(Dispatchers.IO) {
             val tmp1 = launch {
@@ -123,20 +112,15 @@ class MindMapViewModel @Inject constructor(
     private fun draw() {
         drawJob = viewModelScope.launch(Dispatchers.Default + drawCoroutineExceptionHandler) {
             while(true) {
-                countA++
                 operate(
                     nodes = nodeEntities,
                     edges = edgeEntities,
                     nodeId2Index = nodeId2Index
                 )
                 launch(Dispatchers.Main) {
-                    countB++
                     nodeEntities.forEachIndexed { index, nodeEntity ->
                         _nodeEntityStates[index] = nodeEntity.copy()
                     }
-                }
-                if(countA % 500 == 0) {
-                    Log.e("URGENT_TAG", "draw: countA: $countA, countB: $countB")
                 }
                 yield()
             }
@@ -273,9 +257,13 @@ class MindMapViewModel @Inject constructor(
 
     fun releaseDetailNode() {
         _currentDetailNode.value = null
+        draw()
     }
 
-
+    fun openDetailNode(dataEntityIndex: Int) {
+        drawJob = null
+        _currentDetailNode.value = _dataEntityStates[dataEntityIndex]
+    }
 
     private val drawCoroutineExceptionHandler = CoroutineExceptionHandler { context, throwable ->
         Log.e("URGENT_TAG", "drawCoroutineExceptionHandler: $throwable")

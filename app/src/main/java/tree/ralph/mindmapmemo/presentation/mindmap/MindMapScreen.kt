@@ -140,7 +140,7 @@ fun MindMapScreen(
                             )
                         }
                         .size(pixelToDp(px = NODE_RADIUS * 2))
-                        .clickable {  }
+                        .clickable { viewModel.openDetailNode(index) }
                         .pointerInput(Unit) {
                             detectDragGestures(
                                 onDragStart = { viewModel.onNodeDragStart(nodeEntityState) },
