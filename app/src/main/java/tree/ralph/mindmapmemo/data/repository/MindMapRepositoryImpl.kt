@@ -62,6 +62,10 @@ class MindMapRepositoryImpl @Inject constructor(
 
     override suspend fun getEdgeById(id: Long) = edgeEntityDao.getEdgeEntityById(id)
 
+    override suspend fun deleteEdgeEntitiesByNodeId(
+        id: Long
+    ) = edgeEntityDao.deleteEdgeEntitiesByNodeId(id)
+
     override suspend fun insertNode(
         nodeEntity: NodeEntity,
         dataEntity: DataEntity
@@ -89,6 +93,16 @@ class MindMapRepositoryImpl @Inject constructor(
             dataEntityDao.insertDataEntity(dataEntity.copy(nodeEntityId = nodeEntityId))
         }
         return nodeEntityId
+    }
+
+    override suspend fun deleteNode(
+        nodeEntity: NodeEntity,
+        dataEntity: DataEntity
+    ) {
+        db.runInTransaction {
+            nodeEntityDao.deleteNodeEntity(nodeEntity)
+            dataEntityDao.deleteDataEntity(dataEntity)
+        }
     }
 
     override fun getAllFolders() = folderDao.getAllFolders()

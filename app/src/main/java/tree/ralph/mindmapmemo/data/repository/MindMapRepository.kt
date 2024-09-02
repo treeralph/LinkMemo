@@ -19,13 +19,17 @@ interface MindMapRepository {
     suspend fun insertEdgeEntity(node1: Long, node2: Long): Long
     suspend fun getEdgeById(id: Long): EdgeEntity
     suspend fun getAllEdgesByFolder(): List<EdgeEntity>
+    suspend fun deleteEdgeEntitiesByNodeId(id: Long)
 
     suspend fun insertNode(nodeEntity: NodeEntity, dataEntity: DataEntity): Long
     suspend fun insertNode(nodeEntity: NodeEntity, dataEntity: DataEntity, folderId: Long): Long
+    suspend fun deleteNode(nodeEntity: NodeEntity, dataEntity: DataEntity)
 
     fun getAllFolders(): Flow<List<Folder>>
     suspend fun insertFolder(folderName: String, folderInfo: String): Long
     suspend fun deleteFolder(folder: Folder)
     suspend fun updateFolder(folder: Folder)
     suspend fun getFoldersByName(folderName: String): List<Folder>
+
+
 }
