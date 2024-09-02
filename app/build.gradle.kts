@@ -69,6 +69,8 @@ android {
 
 dependencies {
 
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC.2")
+
     implementation(libs.androidx.lifecycle.viewmodel)
 
     implementation(libs.androidx.datastore)
