@@ -3,6 +3,7 @@ package tree.ralph.mindmapmemo.presentation.mindmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -16,6 +17,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddBox
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoveToInbox
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -37,7 +41,9 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -151,10 +157,26 @@ fun MindMapScreen(
                                 viewModel.onNodeMoved(index, dragAmount)
                             }
                         }
+                        .pointerInput(Unit) {
+                            detectDragGesturesAfterLongPress(
+                                onDragStart = { viewModel.onDragStartAfterLongPress(index) },
+                                onDragEnd = viewModel.onDragEndAfterLongPress,
+                                onDragCancel = viewModel.onDragCancelAfterLongPress,
+                                onDrag = { change, dragAmount ->
+                                    change.consume()
+                                    viewModel.onDragAfterLongPress(index, dragAmount)
+                                }
+                            )
+                        }
                 ) {
                     Spacer(
                         modifier = Modifier
-                            .offset { IntOffset((NODE_RADIUS / 2).toInt(), (NODE_RADIUS / 2).toInt()) }
+                            .offset {
+                                IntOffset(
+                                    (NODE_RADIUS / 2).toInt(),
+                                    (NODE_RADIUS / 2).toInt()
+                                )
+                            }
                             .size(pixelToDp(px = NODE_RADIUS))
                             .clip(CircleShape)
                             .background(color = MaterialTheme.colorScheme.onSecondary),
@@ -178,6 +200,105 @@ fun MindMapScreen(
                 node = { it }
             )
         }
+
+        /**
+         * @Test
+         * Long Press ( multiple gesture detecting )
+         * */
+
+        viewModel.targetForLongPress.value?.let {
+            Box(
+                modifier = Modifier
+                    .offset {
+                        IntOffset(
+                            it.x.toInt() - BACKGROUND_SIZE_LP / 2,
+                            it.y.toInt() - BACKGROUND_SIZE_LP / 2
+                        )
+                    }
+                    .size(pixelToDp(px = BACKGROUND_SIZE_LP.toDouble()))
+                    .alpha(0.5f)
+                    .background(
+                        color = Color.Gray,
+                        shape = CircleShape
+                    )
+            )
+
+            viewModel.deleteMenu.value?.let {
+                Box(
+                    modifier = Modifier
+                        .offset {
+                            IntOffset(
+                                it.x.toInt() - MENU_SIZE_LP / 2,
+                                it.y.toInt() - MENU_SIZE_LP / 2
+                            )
+                        }
+                        .size(pixelToDp(px = MENU_SIZE_LP.toDouble()))
+                        .alpha(0.5f)
+                        .background(
+                            color = Color.Blue,
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        modifier = Modifier.align(Alignment.Center),
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = ""
+                    )
+                }
+            }
+
+            viewModel.moveMenu.value?.let {
+                Box(
+                    modifier = Modifier
+                        .offset {
+                            IntOffset(
+                                it.x.toInt() - MENU_SIZE_LP / 2,
+                                it.y.toInt() - MENU_SIZE_LP / 2
+                            )
+                        }
+                        .size(pixelToDp(px = MENU_SIZE_LP.toDouble()))
+                        .alpha(0.5f)
+                        .background(
+                            color = Color.Blue,
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        modifier = Modifier.align(Alignment.Center),
+                        imageVector = Icons.Filled.MoveToInbox,
+                        contentDescription = ""
+                    )
+                }
+            }
+
+            viewModel.editMenu.value?.let {
+                Box(
+                    modifier = Modifier
+                        .offset {
+                            IntOffset(
+                                it.x.toInt() - MENU_SIZE_LP / 2,
+                                it.y.toInt() - MENU_SIZE_LP / 2
+                            )
+                        }
+                        .size(pixelToDp(px = MENU_SIZE_LP.toDouble()))
+                        .alpha(0.5f)
+                        .background(
+                            color = Color.Blue,
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        modifier = Modifier.align(Alignment.Center),
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = ""
+                    )
+                }
+            }
+        }
+
+        /**
+         * @Test - end
+         * */
 
         if (viewModel.isAddNodeDialog.value) {
             AddNodeDialog(
@@ -223,7 +344,6 @@ fun MindMapScreenScaffold(
         containerColor = containerColor,
         contentColor = contentColor,
         contentWindowInsets = contentWindowInsets,
-
         ) {
         Box(
             modifier = Modifier
