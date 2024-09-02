@@ -25,4 +25,5 @@ interface DataEntityDao {
 
     @Upsert
     fun upsertDataEntity(nodeEntity: DataEntity): Long
+
 }
