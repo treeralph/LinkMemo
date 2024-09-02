@@ -17,5 +17,5 @@ fun isCollision(
     y1: Double,
     x2: Double,
     y2: Double,
-): Boolean = (abs(x1 - x2) < COLLISION_THRESHOLD && abs(y1 - y2) < COLLISION_THRESHOLD)
-
+    threshold: Int = COLLISION_THRESHOLD
+): Boolean = (abs(x1 - x2) < threshold && abs(y1 - y2) < threshold)
