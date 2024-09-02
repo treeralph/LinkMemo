@@ -28,6 +28,9 @@ interface NodeEntityDao {
     @Upsert
     fun upsertNodeEntity(nodeEntity: NodeEntity): Long
 
+    @Query("DELETE FROM NodeEntity WHERE id = :id")
+    fun deleteNodeEntityById(id: Long)
+
     @Transaction
     @Query("SELECT * FROM NodeEntity WHERE folder = :folderId")
     fun getAllNodesByFolder(folderId: Long): List<Node>
@@ -35,4 +38,5 @@ interface NodeEntityDao {
     @Transaction
     @Query("SELECT * FROM NodeEntity WHERE id = :id")
     fun getNodeById(id: Long): Node
+
 }
