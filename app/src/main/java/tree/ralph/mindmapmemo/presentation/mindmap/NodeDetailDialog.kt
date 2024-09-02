@@ -91,19 +91,9 @@ private fun NodeDetailDialogHead(
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
-        /** Delete Button */
-        IconButton(onClick = deleteButtonClickListener) {
-            Icon(
-                modifier = Modifier.padding(8.dp),
-                imageVector = Icons.Outlined.Delete,
-                contentDescription = ""
-            )
-        }
-
         /** Edit Button */
-        FilledIconButton(
+        IconButton(
             onClick = editButtonClickListener,
-            shape = CircleShape,
         ) {
             Icon(
                 modifier = Modifier.padding(8.dp),
