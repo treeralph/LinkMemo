@@ -43,7 +43,6 @@ fun NodeDetailDialog(
     visible: Boolean,
     onDismissRequest: () -> Unit,
     dataEntity: DataEntity?,
-    deleteButtonClickListener: () -> Unit,
     editButtonClickListener: () -> Unit,
     goToLinkButtonClickListener: () -> Unit
 ) {
@@ -65,7 +64,6 @@ fun NodeDetailDialog(
             ) {
                 NodeDetailDialogHead(
                     modifier = Modifier.fillMaxWidth(),
-                    deleteButtonClickListener = deleteButtonClickListener,
                     editButtonClickListener = editButtonClickListener,
                     goToLinkButtonClickListener = goToLinkButtonClickListener
                 )
@@ -81,7 +79,6 @@ fun NodeDetailDialog(
 @Composable
 private fun NodeDetailDialogHead(
     modifier: Modifier,
-    deleteButtonClickListener: () -> Unit,
     editButtonClickListener: () -> Unit,
     goToLinkButtonClickListener: () -> Unit,
 ) {
