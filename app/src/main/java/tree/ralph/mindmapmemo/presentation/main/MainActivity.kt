@@ -7,6 +7,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
+import tree.ralph.mindmapmemo.data.remote.isYoutubeUrl
+import tree.ralph.mindmapmemo.data.remote.openLinkIntent
+import tree.ralph.mindmapmemo.data.remote.openYoutubeIntent
 import tree.ralph.mindmapmemo.presentation.home.HomeViewModel
 import tree.ralph.mindmapmemo.presentation.utils.MindMapMemoApp
 import tree.ralph.mindmapmemo.ui.theme.MindMapMemoTheme
@@ -24,7 +27,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MindMapMemoTheme {
-                MindMapMemoApp()
+                MindMapMemoApp(
+                    openLinkIntent = linkIntent
+                )
             }
         }
     }
@@ -41,5 +46,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private val linkIntent: (String) -> Unit = { link ->
+        startActivity(
+            if (isYoutubeUrl(link)) openYoutubeIntent(link)
+            else openLinkIntent(link)
+        )
     }
 }

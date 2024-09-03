@@ -9,13 +9,19 @@ import tree.ralph.mindmapmemo.presentation.home.HomeScreen
 import tree.ralph.mindmapmemo.presentation.mindmap.MindMapScreen
 
 @Composable
-fun MindMapMemoApp() {
+fun MindMapMemoApp(
+    openLinkIntent: (String) -> Unit = {},
+) {
     val navController = rememberNavController()
-    MindMapMemoNavHost(navController = navController)
+    MindMapMemoNavHost(
+        navController = navController,
+        openLinkIntent = openLinkIntent
+    )
 }
 
 @Composable
 fun MindMapMemoNavHost(
+    openLinkIntent: (String) -> Unit = {},
     navController: NavHostController
 ) {
     NavHost(
@@ -26,7 +32,10 @@ fun MindMapMemoNavHost(
             HomeScreen(navController = navController)
         }
         composable(route = Screen.MindMap.route) {
-            MindMapScreen(navController = navController)
+            MindMapScreen(
+                navController = navController,
+                linkIntent = openLinkIntent
+            )
         }
     }
 }

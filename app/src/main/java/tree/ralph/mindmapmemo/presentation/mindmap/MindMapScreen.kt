@@ -50,6 +50,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -63,6 +64,7 @@ import kotlin.math.min
 @Composable
 fun MindMapScreen(
     viewModel: MindMapViewModel = hiltViewModel(),
+    linkIntent: (String) -> Unit = { },
     navController: NavHostController,
 ) {
     MindMapScreenScaffold(
@@ -313,9 +315,20 @@ fun MindMapScreen(
             visible = viewModel.isNodeDetailDialog.value,
             onDismissRequest = { viewModel.releaseDetailNode() },
             dataEntity = viewModel.currentDetailNode.value,
-            deleteButtonClickListener = { /*TODO*/ },
             editButtonClickListener = { /*TODO*/ },
-            goToLinkButtonClickListener = { /*TODO*/ }
+            goToLinkButtonClickListener = {
+                /**
+                 * todo: activity를 사용해야 하는데 어떻게 전달 받을 것인가
+                 *      1. viewModel에 context를 받아서 사용한다
+                 *      2. navigation을 통해 변수를 전달한다.
+                 *      3. activity에 함수를 만들어서 해당 함수를 호출하는 방식으로 진행한다.
+                 *
+                 * 현재 이미지로더도 사용해야 하는 상황이니까 둘다 사용한다는 가정하에 사용하기 편한 것으로 결정하자.
+                 * */
+                viewModel.currentDetailNode.value?.let {
+                    linkIntent(it.linkUrl)
+                }
+            }
         )
     }
 }
